@@ -455,3 +455,367 @@ return [
 ```
 
 Above option will rename object property `user_id` to `user`.
+
+## Format Types
+
+Below is all known format types defined by this module so far:
+
+### bool/boolean
+
+Convert the value to boolean type
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'bool' // 'boolean'
+    ]
+    // ...
+```
+### clone
+
+Clone other object property value with condition, the different between this option
+and special option `@clone` is this type don't format the cloned value and this
+type can clone only part of sub property of object property.
+
+It can optionally convert the value with other format type:
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'clone',
+        'source' => [
+            'field' => 'user.name.first',
+            'type' => 'text' // optional. convert the value to type text
+        ]
+    ]
+    // ...
+```
+
+Above option will create new object property named `/field/` with data taken from
+`$object->user->name->first`. And conver the value to type `text`. The final value
+of property `/field/` is now `Iqomp\Formatter\Object\Text` object.
+
+To create new property with value taken from multiple object property, use option
+`sources`:
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'clone',
+        'sources' => [
+            'name' => [
+                'field' => 'user.name.first',
+                'type' => 'text'
+            ],
+            'bdate' => [
+                'field' => 'birthdate',
+                'type' => 'date'
+            ]
+        ]
+    ]
+    // ...
+```
+
+Above option will create new object property named `/field/` with type object. The
+object property `name` taken from `$object->user->name->first` and conver the value
+to type `text`. The second property is `bdate` that taken from `$object->birthdate`
+and convert the value to type `date`.
+
+### custom
+
+Use other handler to modify object property value.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'custom',
+        'handler' => 'Class::method'
+    ]
+    // ...
+```
+
+The callback will get exactly as format type handler non-collective arguments.
+
+### date
+
+Convert the value to `Iqomp\Formatter\Object\DateTime` object. If timezone not
+set, it'll back to php xdefault timezone.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'date',
+        'timezone' => 'UTC' // optional
+    ]
+    // ...
+```
+
+Please see below for details of this object.
+
+### delete
+
+Remove object property.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'delete'
+    ]
+    // ...
+```
+
+### embed
+
+Convert the value to `Iqomp\Formatter\Object\Embed`. It's the one that generate
+embed html code of popular video service like youtube, etc.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'embed'
+    ]
+    // ...
+```
+
+### interval
+
+Conver the value to `Iqomp\Formatter\Object\Interval`.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'interval'
+    ]
+    // ...
+```
+
+Please see below for more information about this object.
+
+### multiple-text
+
+Convert the value to array of `Iqomp\Formatter\Object\Text` with same separator.
+It conver the original value `string` to array of object type `text`.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'multiple-text',
+        'separator' => ',' // 'json'
+    ]
+    // ...
+```
+
+If the value of `separator` is `null`, it will use `PHP_EOL` as the separator.
+While if it's `'json'`, it will use `json_decode` to separate the value.
+
+### number
+
+Conver the value to `Iqomp\Formatter\Object\Number`.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'number',
+        'decimal' => 2 // optional
+    ]
+    // ...
+```
+
+The `final` value will be `int` if decimal is not set, or `float` if the value is
+bigger than 0. Please see below for more information about this object.
+
+### text
+
+Conver the value to `Iqomp\Formatter\Object\Text`.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'text'
+    ]
+    // ...
+```
+
+Please see below for more information about this object.
+
+### json
+
+Conver the value of json string to array/object with `json_decode`. If property
+`format` is there, the value of decoded value will be formatted with the format
+supplied.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'json',
+        'format' => 'my-other-object'
+    ]
+    // ...
+```
+
+### join
+
+Combine text and object property valeu to fill current property. To get the value
+of object property, add prefix `$` to the value of array member:
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'join',
+        'fields' => ['My', 'name', 'is', '$user.name.first'],
+        'separator' => ' '
+    ]
+    // ...
+```
+
+Above example will create a text `My name is (:name)` where placeholder `(:name)`
+value will taken from `$object->user->name->first`.
+
+### rename
+
+Rename object property name.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'rename',
+        'to' => '/new-field/'
+    ]
+    // ...
+```
+
+### std-id
+
+Convert the value to `Iqomp\Formatter\Object\Std`, which is an object that only
+has 1 property that is `id.`
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'std-id'
+    ]
+    // ...
+```
+
+If you json encode an object property with format type `std-id`, it will be
+something like `{"id":val}`.
+
+### switch
+
+A format type that allow you to apply format type to the object property based
+on value of some of object property.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'switch',
+        'case' => [
+            '/name-1/' => [
+                'field' => '/object-property-name/',
+                'operator' => '=',
+                'expected' => 1,
+                'result' => [
+                    'type' => 'number'
+                ]
+            ],
+            '/name-2' => [
+                'field' => '/object-property-name/',
+                'operator' => '>',
+                'expected' => 2,
+                'result' => [
+                    'type' => 'text'
+                ]
+            ]
+        ]
+    ]
+    // ...
+```
+
+Based on above config, the value of object property `/field/` will apply config
+`result` of config above if condition match.
+
+If the value of `object->/object-property-name/` is equal to 1, current property
+will be formatted with `'type' => 'number'`. Or if the value is bigger than 2,
+it will be formatted with `'type' => 'text'`.
+
+Known operator so far are `=`, `!=`, `>`, `<`, `>=`, `<=`, `in`, and `!in`. For
+operator `in` and `!in`, the config `expected` expecting an array.
+
+## Type Object
+
+Some object format type convert the value of object property to an interal object.
+The object is implementing `\JsonSerializable` that make it possible to `json_encode`.
+
+Below is list of known object so far:
+
+### Iqomp\Formatter\Object\DateTime
+
+The object that extending `\DateTime` with custom property.
+
+```php
+$val->format(string $format);
+$val->timezone;
+$val->time;
+$val->value;
+$val->{DateTime functions}(...);
+```
+
+### Iqomp\Formatter\Object\Embed
+
+The object that identify and make embed html script of popular video service url.
+
+```php
+$val->url;
+$val->provider;
+$val->html;
+```
+
+It will return final URL for `__toString()` and `json_encode`.
+
+### Iqomp\Formatter\Object\Interval
+
+The object that handle interval string.
+
+```php
+$val->format(string $format);
+$val->interval();
+$val->time;
+$val->value;
+$val->DateTime;
+$val->DateInterval;
+```
+
+### Iqomp\Formatter\Object\Number
+
+The object that work with number.
+
+```php
+$val->value;
+$val->format([$decimal=0, [$dec_separator=',', [$tho_separator='.']]]);
+```
+
+
+### Iqomp\Formatter\Object\Std
+
+Simple object that has only one property, which is `id` that taken from original
+value of the property.
+
+```php
+$val->id;
+```
+
+### Iqomp\Formatter\Object\Text
+
+The object that work with text.
+
+```php
+$val->chars(int $len);
+$val->words(int $len);
+$val->safe;
+$val->clean;
+$val->value;
+```
+
+Getting property `safe` and `clean` will return new object `~\Text`. The `safe`
+property return `htmlspecialschars($, ENT_QUOTES)` of the original value. The
+`clean` property return text with only characters `a-zA-Z0-9 `.
