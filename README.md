@@ -819,3 +819,17 @@ $val->value;
 Getting property `safe` and `clean` will return new object `~\Text`. The `safe`
 property return `htmlspecialschars($, ENT_QUOTES)` of the original value. The
 `clean` property return text with only characters `a-zA-Z0-9 `.
+
+## Unit Test
+
+Run below script to run unit test:
+
+```bash
+composer test
+```
+
+## Linter
+
+```bash
+composer lint
+```

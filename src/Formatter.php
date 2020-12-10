@@ -3,7 +3,7 @@
 /**
  * Object formatter
  * @package iqomp/formatter
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace Iqomp\Formatter;
@@ -116,7 +116,7 @@ class Formatter
                 $type    = $formats[$field]['type'];
                 $handler = explode('::', $handlers[$type]['handler']);
                 $class   = $handler[0];
-                $method  = $handler[0];
+                $method  = $handler[1];
                 $format  = $formats[$field];
                 $fopts   = null;
 
@@ -146,7 +146,7 @@ class Formatter
             }
 
             // for collective data
-            $cprop = $handler->field ?? $field;
+            $cprop = $handler['field'] ?? $field;
             if (is_string($collective)) {
                 $cprop = $collective;
             }
