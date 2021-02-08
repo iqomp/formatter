@@ -3,7 +3,7 @@
 /**
  * Format default handler
  * @package iqomp/formatter
- * @version 1.0.0
+ * @version 1.0.2
  */
 
 namespace Iqomp\Formatter;
@@ -138,7 +138,7 @@ class Handler
 
     public static function number($value, string $fld, object $obj, array $fmt)
     {
-        $dec = $fmt->decimal ?? 0;
+        $dec = $fmt['decimal'] ?? 0;
         return new Number($value, $dec);
     }
 
