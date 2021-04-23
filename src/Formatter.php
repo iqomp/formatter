@@ -3,12 +3,10 @@
 /**
  * Object formatter
  * @package iqomp/formatter
- * @version 1.0.1
+ * @version 2.0.0
  */
 
 namespace Iqomp\Formatter;
-
-use Iqomp\Config\Fetcher as Config;
 
 class Formatter
 {
@@ -60,7 +58,7 @@ class Formatter
             unset($formats->{'@rest'});
         }
 
-        $handlers = Config::get('formatter', 'handlers');
+        $handlers = config('formatter.handlers');
         $collective_data = [];
 
         // 1. Group properties by collectivity type.
@@ -201,7 +199,7 @@ class Formatter
         array $options = [],
         string $askey = null
     ): array {
-        $formats = Config::get('formatter', 'formats', $format);
+        $formats = config('formatter.formats.' . $format);
 
         if (!$formats) {
             $msg = 'Format named `' . $format . '` not exists';
@@ -219,7 +217,7 @@ class Formatter
         $format,
         $options
     ) {
-        $handlers = Config::get('formatter', 'handlers');
+        $handlers = config('formatter.handlers');
 
         if (!isset($handlers[$type])) {
             $msg = 'Handler for formatter type `' . $type . '` not found';

@@ -3,12 +3,11 @@
 /**
  * Format default handler
  * @package iqomp/formatter
- * @version 1.0.2
+ * @version 2.0.0
  */
 
 namespace Iqomp\Formatter;
 
-use Iqomp\Config\Fetcher as Config;
 use Iqomp\Formatter\HandlerNotFoundException;
 use Iqomp\Formatter\Object\{
     DateTime,
@@ -259,7 +258,7 @@ class Handler
             return $val;
         }
 
-        $handler = Config::get('formatter', 'handlers', $result['type']);
+        $handler = config('formatter.handlers.' . $result['type']);
 
         if (!$handler) {
             $msg = 'Handler for formatter type `' . $type . '` not found';
