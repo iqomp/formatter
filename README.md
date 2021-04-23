@@ -1,4 +1,4 @@
-# iqmop/formatter
+# iqomp/formatter
 
 This is a library that format your single or multiple object to suit your needs
 based on formats config. This is the library that you need before sending your
@@ -10,14 +10,19 @@ object ( from database ) send to client or view.
 composer require iqomp/formatter
 ```
 
+## Publishing Config
+
+```bash
+php bin/hyperf.php vendor:publish iqomp/formatter
+```
+
 ## Configuration
 
 You should define one format for each object you save on your database. Please
 follow this steps to create new object format config.
 
-This module use [iqomp/config](https://github.com/iqomp/config/) to store all
-config related to this module. Create new file named `iqomp/config/formatter.php`
-under your main module directory. Fill the file with content as below:
+Add your object formatter config under file `config/autoload/formatter.php` with
+content as below:
 
 ```php
 <?php
@@ -45,18 +50,6 @@ return [
     ]
 ];
 ```
-
-Update your `composer.json` file so config generator aware of your config:
-
-```json
-{
-    "extra": {
-        "iqomp/config": "iqomp/config/"
-    }
-}
-```
-
-Make sure to call `composer update` for everytime you update the config file.
 
 ## Usage
 
@@ -343,48 +336,48 @@ Returning `null` on type handler will not modify object property.
 
 #### Register Handler Config
 
-This module use [iqomp/config](https://github.com/iqomp/config) for all configs.
-Create new file named `iqomp/config/formatter.php` under your modue main folder.
-
-Fill the file with content as below:
+Create new file on your module named `ConfigProvider` and return array as below
+in the `__invoke` public method:
 
 ```php
-return [
-    'handlers' => [
-        'prefix-one' => [
-             'handler' => 'MyModule\\Formatter\\MyHandler::addPrefixSingle',
-             'collective' => false
-         ],
-         'prefix-two' => [
-             'handler' => 'MyModule\\Formatter\\MyHandler::addPrefixCollective',
-             'collective' => true,
-             'field' => null
-         ],
-         'prefix-three' => [
-             'handler' => 'MyModule\\Formatter\\MyHandler::addPrefixById',
-             'collective' => true,
-             'field' => 'id'
-         ],
-         'prefix-four' => [
-             'handler' => 'MyModule\\Formatter\\MyHandler::addPrefixByMD5',
-             'collective' => '_MD5_',
-             'field' => null
-         ]
-    ]
-];
+// ...
+    return [
+        'formatter' => [
+            'handlers' => [
+                'prefix-one' => [
+                     'handler' => 'MyModule\\Formatter\\MyHandler::addPrefixSingle',
+                     'collective' => false
+                 ],
+                 'prefix-two' => [
+                     'handler' => 'MyModule\\Formatter\\MyHandler::addPrefixCollective',
+                     'collective' => true,
+                     'field' => null
+                 ],
+                 'prefix-three' => [
+                     'handler' => 'MyModule\\Formatter\\MyHandler::addPrefixById',
+                     'collective' => true,
+                     'field' => 'id'
+                 ],
+                 'prefix-four' => [
+                     'handler' => 'MyModule\\Formatter\\MyHandler::addPrefixByMD5',
+                     'collective' => '_MD5_',
+                     'field' => null
+                 ]
+            ]
+        ]
+    ];
+/// ...
 ```
 
 Then, update your module `composer.json` file to register the new config as below:
 
 ```json
-    {
-        "extra": {
-            "iqomp/config": "iqomp/config/"
+    "extra": {
+        "hyperf": {
+            "config": "Vendor\\Module\\ConfigProvider"
         }
     }
 ```
-
-Make sure to call `composer update` after modifying your config file.
 
 ## Special Options
 
@@ -819,14 +812,6 @@ $val->value;
 Getting property `safe` and `clean` will return new object `~\Text`. The `safe`
 property return `htmlspecialschars($, ENT_QUOTES)` of the original value. The
 `clean` property return text with only characters `a-zA-Z0-9 `.
-
-## Unit Test
-
-Run below script to run unit test:
-
-```bash
-composer test
-```
 
 ## Linter
 
