@@ -31,13 +31,15 @@ return [
     'formats' => [
         '/format-name/' => [
             '/field-name/' => [
-                'type' => '/field-trans-type/'
+                'type' => '/field-trans-type/',
+                '@finalize' => '/field-trans-type/'
             ],
             // ...
         ],
         'my-object' => [
             'id' => [
                 'type' => 'number',
+                '@finalize' => 'format'
             ],
             'name' => [
                 'type' => 'text'
@@ -448,6 +450,21 @@ return [
 ```
 
 Above option will rename object property `user_id` to `user`.
+
+### @finalize
+
+Re-call one more format type to the object property right after all object
+properties format already applied. This format type will be applied right before
+returning the format result to the caller.
+
+```php
+    // ...
+    '/field/' => [
+        'type' => 'number',
+        '@finalize' => 'format'
+    ]
+    // ...
+```
 
 ## Format Types
 

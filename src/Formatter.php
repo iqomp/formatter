@@ -3,7 +3,7 @@
 /**
  * Object formatter
  * @package iqomp/formatter
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 namespace Iqomp\Formatter;
@@ -60,6 +60,7 @@ class Formatter
 
         $handlers = config('formatter.handlers');
         $collective_data = [];
+        $finalizers = [];
 
         // 1. Group properties by collectivity type.
         //  0 => non collective
@@ -78,6 +79,10 @@ class Formatter
             if (!isset($handlers[$type])) {
                 $msg = 'Handler for formatter type `' . $type . '` not found';
                 throw new HandlerNotFoundException($msg);
+            }
+
+            if (isset($opts['@finalize'])) {
+                $finalizers[$field] = $opts;
             }
 
             $handler = $handlers[$type];
@@ -183,6 +188,28 @@ class Formatter
             }
 
             unset($object);
+        }
+
+        // apply finalizer
+        if ($finalizers) {
+            foreach ($finalizers as $field => $opts) {
+                $fopts = null;
+                $type  = $opts['@finalize'];
+                if (in_array($field, $options)) {
+                    $fopts = true;
+                } elseif (isset($options[$field])) {
+                    $fopts = $options[$field];
+                }
+
+                foreach ($objects as &$object) {
+                    $value = $object->$field ?? null;
+                    $res = self::typeApply($type, $value, $field, $object, $opts, $fopts);
+                    if (!is_null($res)) {
+                        $object->$field = $res;
+                    }
+                }
+                unset($object);
+            }
         }
 
         // process askey
