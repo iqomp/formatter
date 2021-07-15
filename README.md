@@ -385,6 +385,23 @@ Then, update your module `composer.json` file to register the new config as belo
 
 This is some special format option that can help you in some condition:
 
+### @default
+
+Set default value for the property if the value is falsy:
+
+```php
+return [
+    'formats' => [
+        '/my-object/' => [
+            '/field/' => [
+                'type' => 'text',
+                '@default' => 'Hello World'
+            ]
+        ]
+    ]
+];
+```
+
 ### @rest
 
 Apply current format option to all object properties that don't have format type

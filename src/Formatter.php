@@ -3,7 +3,7 @@
 /**
  * Object formatter
  * @package iqomp/formatter
- * @version 2.1.0
+ * @version 2.2.0
  */
 
 namespace Iqomp\Formatter;
@@ -46,6 +46,7 @@ class Formatter
         string $askey = null
     ): ?array {
 
+        // apply format for @rest property
         if (isset($formats['@rest'])) {
             foreach ($objects as $object) {
                 foreach ($object as $prop => $val) {
@@ -58,6 +59,8 @@ class Formatter
             unset($formats->{'@rest'});
         }
 
+        // apply @default for properties
+
         $handlers = config('formatter.handlers');
         $collective_data = [];
         $finalizers = [];
@@ -66,11 +69,22 @@ class Formatter
         //  0 => non collective
         //  1 => collective
         // 1.a clone @clone-ed property
+        // 1.b put @default value
         $collectives = [[],[]];
         foreach ($formats as $field => $opts) {
             if (isset($opts['@clone'])) {
                 foreach ($objects as $index => &$object) {
                     $object->$field = $object->{$opts['@clone']};
+                }
+                unset($object);
+            }
+
+            if (isset($opts['@default'])) {
+                foreach ($objects as $index => &$object) {
+                    $def = $opts['@default'];
+                    if (!isset($object->$field) || !$object->$field) {
+                        $object->$field = $def;
+                    }
                 }
                 unset($object);
             }
